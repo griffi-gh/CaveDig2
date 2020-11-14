@@ -11,7 +11,7 @@ game = {
   config = {
     ldist = 1,
     debug = {
-      enableZ = true,
+      enableZoom = true,
       drawChunkBorders = true,
       enableDebugInfo = true,
     },
@@ -85,6 +85,62 @@ end
   end
 end]]
 
+function chunkLoader(playerChunk,force)
+  playerChunk = playerChunk or _G.playerChunk -- **TODO** remove this
+  local cs  = world.chunkSize * world.tileSize
+  local ldist = math.floor(game.config.ldist)
+  
+  if not(force) and game.config.thread.waitForThreads then
+    while (
+      love.thread.getChannel('unload'):getCount()>0 
+      or
+      love.thread.getChannel('loadRequests'):getCount()>0 
+    ) do end
+  end
+
+  local bkt = {}
+  for i=#world.chunks,1,-1 do
+    local v = world.chunks[i]
+    local d = math.max(
+      math.ceil(math.abs(v.x-playerChunk[1])),
+      math.ceil(math.abs(v.y-playerChunk[2]))
+    )
+    if d>ldist then
+      saveChnk(v)
+      table.remove(world.chunks,i)
+    else
+      local s = F('%s_%s',v.x,v.y)
+      if not bkt[s]==nil then
+        table.remove(world.chunks,i)
+        print'[Warning] Overlapping Chunk!'
+      end
+      --assert(bkt[s]==nil, 'Overlapping chunks!')
+      bkt[s] = v
+    end
+  end
+  for ry=-ldist,ldist do
+    for rx=-ldist,ldist do
+      local cx,cy = rx+playerChunk[1],ry+playerChunk[2]
+      local v = bkt[F('%s_%s',cx,cy)]
+      if v==nil then
+        local c
+        if save.chunkExists(world,cx,cy) then
+          if game.config.thread.multithreadLoad then
+            love.thread.getChannel('loadRequests'):push{world.name,cx,cy,world.compression}
+          else
+            c = save.loadChunk(world,cx,cy)
+          end
+        else
+          c = gen.genChunk(world,cx,cy)
+        end
+        if c then
+          table.insert(world.chunks,c)
+        end
+      end
+    end
+  end
+end
+
 function love.keypressed(k)
   if k=='k' then
     save.saveWorld(world,player)
@@ -94,7 +150,7 @@ function love.keypressed(k)
 end
 
 function love.load(args)
-  --love.window.setVSync(0)
+  love.window.setVSync(0)
   camera = Camera(player.x,player.y)
   camera:setFollowStyle('NO_DEADZONE')
   if game.config.thread.enable then
@@ -139,59 +195,8 @@ function love.update(dt)
     table.insert(world.chunks,p)
   end
   
-  if game.loadChunks or dif[1]~=playerChunk[1] or dif[2]~=playerChunk[2] then
-    
-    game.loadChunks = false
-    
-    if game.config.thread.waitForThreads then
-      while (
-        love.thread.getChannel('unload'):getCount()>0 
-        or
-        love.thread.getChannel('loadRequests'):getCount()>0 
-      ) do end
-    end
-  
-    local bkt = {}
-    for i=#world.chunks,1,-1 do
-      local v = world.chunks[i]
-      local d = math.max(
-        math.ceil(math.abs(v.x-playerChunk[1])),
-        math.ceil(math.abs(v.y-playerChunk[2]))
-      )
-      if d>ldist then
-        saveChnk(v)
-        table.remove(world.chunks,i)
-      else
-        local s = F('%s_%s',v.x,v.y)
-        if not bkt[s]==nil then
-          table.remove(world.chunks,i)
-          print'[Warning] Overlapping Chunk!'
-        end
-        --assert(bkt[s]==nil, 'Overlapping chunks!')
-        bkt[s] = v
-      end
-    end
-    for ry=-ldist,ldist do
-      for rx=-ldist,ldist do
-        local cx,cy = rx+playerChunk[1],ry+playerChunk[2]
-        local v = bkt[F('%s_%s',cx,cy)]
-        if v==nil then
-          local c
-          if save.chunkExists(world,cx,cy) then
-            if game.config.thread.multithreadLoad then
-              love.thread.getChannel('loadRequests'):push{world.name,cx,cy,world.compression}
-            else
-              c = save.loadChunk(world,cx,cy)
-            end
-          else
-            c = gen.genChunk(world,cx,cy)
-          end
-          if c then
-            table.insert(world.chunks,c)
-          end
-        end
-      end
-    end
+  if dif[1]~=playerChunk[1] or dif[2]~=playerChunk[2] then
+    chunkLoader()
   end
 end
 
@@ -201,7 +206,7 @@ function love.draw()
   local w,h = g.getDimensions()
   local chs = world.chunkSize*world.tileSize
   local uldist = game.config.uldist
-  if game.config.debug.enableZ and love.keyboard.isDown('z') then
+  if game.config.debug.enableZoom and love.keyboard.isDown('z') then
     g.translate(w/3,h/3)
     g.scale(.25)
   end
