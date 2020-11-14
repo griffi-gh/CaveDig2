@@ -75,7 +75,7 @@ local function saveChnk(v)
   end
 end
 
---[[local function loadChnk(cx,cy)
+local function loadChnk(cx,cy)
   if save.chunkExists(world,cx,cy) then
     if game.config.thread.multithreadLoad then
       love.thread.getChannel('loadRequests'):push{world.name,cx,cy,world.compression}
@@ -83,7 +83,7 @@ end
       c = save.loadChunk(world,cx,cy)
     end
   end
-end]]
+end
 
 function chunkLoader(playerChunk,force)
   playerChunk = playerChunk or _G.playerChunk -- **TODO** remove this
@@ -125,11 +125,12 @@ function chunkLoader(playerChunk,force)
       if v==nil then
         local c
         if save.chunkExists(world,cx,cy) then
-          if game.config.thread.multithreadLoad then
+          loadChnk(cx,cy)
+          --[[if game.config.thread.multithreadLoad then
             love.thread.getChannel('loadRequests'):push{world.name,cx,cy,world.compression}
           else
             c = save.loadChunk(world,cx,cy)
-          end
+          end]]
         else
           c = gen.genChunk(world,cx,cy)
         end
