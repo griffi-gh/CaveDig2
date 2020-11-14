@@ -14,19 +14,22 @@ game = {
       enableZoom = true,
       drawChunkBorders = true,
       enableDebugInfo = true,
+      debugDrawDirt = true
     },
     thread = { --experimental
       enable = true,
-      waitForThreads = true,
+      waitForThreads = false,
       multithreadSave = true, 
       multithreadLoad = true,
       receiveMultiple = true,
       deduplicateChunks = true,
+      runUnloader = true,
     },
   },
   playerSize = {
     32,32
-  }
+  },
+  state = {}
 }
 world  = {
   name = 'World',
@@ -99,7 +102,7 @@ function deduplicateChunks()
   end
 end
 
-function chunkLoader(playerChunk,force)
+function chunkLoader(playerChunk,force,unloadOnly)
   playerChunk = playerChunk or _G.playerChunk -- **TODO** remove this
   local cs  = world.chunkSize * world.tileSize
   local ldist = math.floor(game.config.ldist)
@@ -132,19 +135,21 @@ function chunkLoader(playerChunk,force)
       bkt[s] = v
     end
   end
-  for ry=-ldist,ldist do
-    for rx=-ldist,ldist do
-      local cx,cy = rx+playerChunk[1],ry+playerChunk[2]
-      local v = bkt[F('%s_%s',cx,cy)]
-      if v==nil then
-        local c
-        if save.chunkExists(world,cx,cy) then
-          c = loadChnk(cx,cy)
-        else
-          c = gen.genChunk(world,cx,cy)
-        end
-        if c then
-          table.insert(world.chunks,c)
+  if not unloadOnly then
+    for ry=-ldist,ldist do
+      for rx=-ldist,ldist do
+        local cx,cy = rx+playerChunk[1],ry+playerChunk[2]
+        local v = bkt[F('%s_%s',cx,cy)]
+        if v==nil then
+          local c
+          if save.chunkExists(world,cx,cy) then
+            c = loadChnk(cx,cy)
+          else
+            c = gen.genChunk(world,cx,cy)
+          end
+          if c then
+            table.insert(world.chunks,c)
+          end
         end
       end
     end
@@ -170,7 +175,7 @@ end
 
 function love.update(dt)
   local isd = love.keyboard.isDown
-  local sp = 3
+  local sp = 4
   local spd = sp*dt*60
   if isd('left') then
     player.x=player.x-spd
@@ -183,6 +188,21 @@ function love.update(dt)
   end
   if isd('down') then
     player.y=player.y+spd
+  end
+  
+  if game.config.debug.debugDrawDirt then
+    if love.mouse.isDown(1) then
+      for i,v in ipairs(world.chunks) do
+        if v.x==playerChunk[1] and v.y==playerChunk[2] then
+          local mx,my = love.mouse.getPosition()
+          local lx,ly = math.floor(mx/world.tileSize)+1,math.floor(my/world.tileSize)+1
+          if v.data[lx] and v.data[lx][ly] then
+            v.data[lx][ly].floor.id = 2
+          end
+          break
+        end
+      end
+    end
   end
   
   camera:follow(player.x+game.playerSize[1],player.y+game.playerSize[2])
@@ -214,8 +234,13 @@ function love.update(dt)
         break
       end
     end
-    if game.config.thread.deduplicateChunks and loaded then
-      deduplicateChunks()
+    if loaded then
+      if game.config.thread.deduplicateChunks then
+        deduplicateChunks()
+      end
+      if game.config.thread.runUnloader then
+        chunkLoader(nil,true,true)
+      end
     end
   end
   
