@@ -177,16 +177,16 @@ function love.update(dt)
   local isd = love.keyboard.isDown
   local sp = 4
   local spd = sp*dt*60
-  if isd('left') then
+  if isd'left' or isd'a' then
     player.x=player.x-spd
   end
-  if isd('right') then
+  if isd'right' or isd'd' then
     player.x=player.x+spd
   end
-  if isd('up') then
+  if isd'up' or isd'w' then
     player.y=player.y-spd
   end
-  if isd('down') then
+  if isd'down' or isd's' then
     player.y=player.y+spd
   end
   
