@@ -1,5 +1,4 @@
 save = {}
-
 ------------------
 local function gname(w)
   if type(w)=='table' then w=w.name end

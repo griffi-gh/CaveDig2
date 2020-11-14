@@ -20,6 +20,8 @@ game = {
       waitForThreads = true,
       multithreadSave = true, 
       multithreadLoad = true,
+      receiveMultiple = true,
+      deduplicateChunks = true,
     },
   },
   playerSize = {
@@ -68,7 +70,7 @@ function love.quit()
 end
 
 local function saveChnk(v)
-  if game.config.thread.multithreadSave then 
+  if game.config.thread.enable and game.config.thread.multithreadSave then 
     love.thread.getChannel('unload'):push({world.name,v,world.compression})
   else
     save.saveChunk(world,v)
@@ -77,11 +79,23 @@ end
 
 local function loadChnk(cx,cy)
   if save.chunkExists(world,cx,cy) then
-    if game.config.thread.multithreadLoad then
+    if game.config.thread.enable and game.config.thread.multithreadLoad then
       love.thread.getChannel('loadRequests'):push{world.name,cx,cy,world.compression}
     else
-      c = save.loadChunk(world,cx,cy)
+      return save.loadChunk(world,cx,cy)
     end
+  end
+end
+
+function deduplicateChunks()
+  local seen = {}
+  for i=#world.chunks,1,-1 do
+    local v = world.chunks[i]
+    local j = F('%s!%s',v.x,v.y)
+    if seen[j] then
+      table.remove(world.chunks,i)
+    end
+    seen[j]=true
   end
 end
 
@@ -90,7 +104,7 @@ function chunkLoader(playerChunk,force)
   local cs  = world.chunkSize * world.tileSize
   local ldist = math.floor(game.config.ldist)
   
-  if not(force) and game.config.thread.waitForThreads then
+  if game.config.thread.enable and not(force) and game.config.thread.waitForThreads then
     while (
       love.thread.getChannel('unload'):getCount()>0 
       or
@@ -125,12 +139,7 @@ function chunkLoader(playerChunk,force)
       if v==nil then
         local c
         if save.chunkExists(world,cx,cy) then
-          loadChnk(cx,cy)
-          --[[if game.config.thread.multithreadLoad then
-            love.thread.getChannel('loadRequests'):push{world.name,cx,cy,world.compression}
-          else
-            c = save.loadChunk(world,cx,cy)
-          end]]
+          c = loadChnk(cx,cy)
         else
           c = gen.genChunk(world,cx,cy)
         end
@@ -191,9 +200,23 @@ function love.update(dt)
     math.floor((player.y+game.playerSize[2]/2)/cs)+1,
   }
   
-  local p = love.thread.getChannel('loadReturn'):pop()
-  if p then
-    table.insert(world.chunks,p)
+  if game.config.thread.enable and game.config.thread.multithreadLoad then
+    local loaded = false
+    while true do
+      local p = love.thread.getChannel('loadReturn'):pop()
+      if p then
+        table.insert(world.chunks,p)
+        loaded = true
+        if not game.config.thread.receiveMultiple then
+          break
+        end
+      else
+        break
+      end
+    end
+    if game.config.thread.deduplicateChunks and loaded then
+      deduplicateChunks()
+    end
   end
   
   if dif[1]~=playerChunk[1] or dif[2]~=playerChunk[2] then
@@ -252,11 +275,12 @@ function love.draw()
   if game.config.debug.enableDebugInfo then
     g.print(
       string.format(
-        '%s FPS\n%s chunks loaded\n%s/%s in queue (save/load) \nPlayer in chunk: %s_%s\nCompression %s',
+        '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %s_%s\nCompression %s',
         love.timer.getFPS(),
         #world.chunks,
         love.thread.getChannel('unload'):getCount(),
         love.thread.getChannel('loadRequests'):getCount(),
+        love.thread.getChannel('loadReturn'):getCount(),
         playerChunk[1],playerChunk[2],
         (world.compression and 'Enabled') or 'Disabled'
       )
