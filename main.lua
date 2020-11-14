@@ -122,9 +122,6 @@ function love.update(dt)
   camera:follow(player.x+game.playerSize[1],player.y+game.playerSize[2])
   camera:update(dt)
   
-  --local dx,dy = player.x - camera.x, player.y - camera.y
-  --camera:move(dx/2, dy/2)
-  
   local cs  = world.chunkSize * world.tileSize
   local ldist = math.floor(game.config.ldist)
   
