@@ -192,7 +192,7 @@ function love.update(dt)
   elseif game.state[1]=='game' then
     local isd = love.keyboard.isDown
     local sp = 4
-    local spd = sp*dt*60
+    local spd = math.min(sp*60,sp*dt*60)
     if isd'left' or isd'a' then
       player.x=player.x-spd
     end
