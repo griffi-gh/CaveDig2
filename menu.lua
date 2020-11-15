@@ -24,9 +24,6 @@ menu = {
           action = function()
             love.event.quit()
           end
-        },
-        {
-          text = 'WIP. Press space to start!'
         }
       }
     }
@@ -134,10 +131,4 @@ function menu.draw()
   g.setFont(defaultFont)
 end
 
---local c = math.sin(love.timer.getTime())^2
-
-function menu.update(dt)
-  if love.keyboard.isDown('space') then
-    game.switchState{'game'}
-  end
-end
+function menu.update(dt) end
