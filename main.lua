@@ -1,6 +1,7 @@
 bitser = require'lib.bitser'
 Camera = require'lib.camera'
 
+require'fn'
 require'save'
 require'gen'
 require'thr'
@@ -267,17 +268,19 @@ end
 function love.draw()
   local g = love.graphics
   g.setColor(1,1,1)
+  local w,h = g.getDimensions()
+  
+  if game.config.debug.enableZoom and love.keyboard.isDown('z') then
+    g.translate(w/3,h/3)
+    g.scale(.25)
+  end
+  
   if game.state[1]=='menu' then
     g.push()
       menu.draw()
     g.pop()
   elseif game.state[1]=='game' then
-    local w,h = g.getDimensions()
     local chs = world.chunkSize*world.tileSize
-    if game.config.debug.enableZoom and love.keyboard.isDown('z') then
-      g.translate(w/3,h/3)
-      g.scale(.25)
-    end
     camera:attach()
       for cid,ch in ipairs(world.chunks) do
         local chox,choy = chs*(ch.x-1), chs*(ch.y-1)
