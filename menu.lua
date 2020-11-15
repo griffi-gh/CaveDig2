@@ -115,8 +115,7 @@ function menu.draw()
       local menuy = h/2
       local ph = 4
       local mw,mh = 8,3
-      
-      local minmw = 2
+      local minmw = 2 --for animations
       
       g.origin()
       
@@ -136,14 +135,15 @@ function menu.draw()
         local hf = .1*love.timer.getDelta()*60
         if h then
           v.hovt = math.min(1,v.hovt+hf)
-          if mdr then
-            v.clkt = math.min(1,v.clkt+hf*4)
-          end
           if v.action and md2 then
             v:action(i)
           end
         else
           v.hovt = math.max(0,v.hovt-hf)
+        end
+        if mdr and h then
+          v.clkt = math.min(1,v.clkt+hf*4)
+        else
           v.clkt = math.max(0,v.clkt-hf)
         end
         local vrw = rw-v.clkt*(mw-minmw)*2
