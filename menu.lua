@@ -77,7 +77,7 @@ function menu.draw()
       
       local menuy = h/2
       local ph = 4
-      local mh,mw = 2,2
+      local mw,mh = 5,3
       
       local trx,try = w/2,menuy+ph
       g.translate(trx,try)
@@ -85,7 +85,7 @@ function menu.draw()
         v.hovt = v.hovt or 0
         local t = v.text
         local fw = f:getWidth(t)
-        local x = math.floor(-maxw/2)-mw*2
+        local x = math.floor(-maxw/2)-mw
         local tx = math.floor(-fw/2)
         local rw,rh = maxw+mw*2,fh+mh*2
         local h = mx>trx+x and mx<trx+x+rw and my>try and my<try+rh
