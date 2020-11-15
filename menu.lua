@@ -2,13 +2,15 @@ local F = string.format
 
 menu = {
   var = {
+    bg = {
+      background = love.graphics.newImage('res/dirt.png'),
+      background_quad = nil,
+      scrSpeed = 1,
+    },
     main = {
       logo = 'MAIN MENU',
       font = love.graphics.newFont(20),
       bigFont = love.graphics.newFont(100),
-      background = love.graphics.newImage('res/dirt.png'),
-      background_quad = nil,
-      scrSpeed = 1,
       buttons = {
         {
           text = 'Singleplayer',
@@ -52,9 +54,9 @@ menu = {
 }
 
 do
-  menu.var.main.background:setWrap("repeat", "repeat")
-  local iw,ih = menu.var.main.background:getDimensions()
-  menu.var.main.background_quad = love.graphics.newQuad(
+  menu.var.bg.background:setWrap("repeat", "repeat")
+  local iw,ih = menu.var.bg.background:getDimensions()
+  menu.var.bg.background_quad = love.graphics.newQuad(
     0,0,
     love.graphics.getWidth()+iw,
     love.graphics.getHeight()+ih,
@@ -75,21 +77,22 @@ function menu.draw()
   local md = mdr and not mdp
   local md2 = mdp and not mdr
   mdp = mdr
+  
+  do --background
+    local var = menu.var.bg
+    local bw,bh = var.background:getDimensions()
+    local t = love.timer.getTime()
+    local sp = var.scrSpeed
+    love.graphics.draw(
+      var.background,
+      var.background_quad,
+      off(t,sp,bw),
+      off(t,sp,bh)
+    )
+  end
+  
   if game.state[2]=='main' then
     local var = menu.var.main
-    
-    do --background
-      local bw,bh = var.background:getDimensions()
-      local t = love.timer.getTime()
-      local sp = var.scrSpeed
-      love.graphics.draw(
-        var.background,
-        var.background_quad,
-        off(t,sp,bw),
-        off(t,sp,bh)
-      )
-    end
-    
     do --logo
       local f = var.bigFont
       local t = var.logo
