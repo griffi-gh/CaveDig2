@@ -73,6 +73,7 @@ function menu.draw()
       local f = var.bigFont
       local t = var.logo
       g.setFont(f)
+      g.setColor(1,1,1)
       g.print(
         t,
         math.floor((w-f:getWidth(t))/2),
