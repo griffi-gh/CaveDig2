@@ -1,7 +1,9 @@
 menu = {
   var = {
     main = {
+      logo = 'MAIN MENU',
       font = love.graphics.newFont(20),
+      bigFont = love.graphics.newFont(100),
       background = love.graphics.newImage('res/dirt.png'),
       background_quad = nil,
       scrSpeed = 1,
@@ -23,7 +25,8 @@ menu = {
           text = 'Exit',
           action = function()
             love.event.quit()
-          end
+          end,
+          bgHoverColor = {1,.2,.2,.8}
         }
       }
     }
@@ -62,6 +65,17 @@ function menu.draw()
         var.background_quad,
         off(t,sp,bw),
         off(t,sp,bh)
+      )
+    end
+    
+    do --logo
+      local f = var.bigFont
+      local t = var.logo
+      g.setFont(f)
+      g.print(
+        t,
+        math.floor((w-f:getWidth(t))/2),
+        math.floor(h/4-f:getHeight()/2)
       )
     end
     
