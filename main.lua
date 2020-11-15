@@ -322,13 +322,14 @@ function love.draw()
     if game.config.debug.enableDebugInfo then
       g.print(
         string.format(
-          '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %s_%s\nCompression %s',
+          '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %e_%s\nPlayer Pos:\n\tx:%s \n\ty:%s\nCompression %s',
           love.timer.getFPS(),
           #world.chunks,
           love.thread.getChannel('unload'):getCount(),
           love.thread.getChannel('loadRequests'):getCount(),
           love.thread.getChannel('loadReturn'):getCount(),
           playerChunk[1],playerChunk[2],
+          player.x,player.y,
           (world.compression and 'Enabled') or 'Disabled'
         )
       )
