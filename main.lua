@@ -8,6 +8,8 @@ require'menu'
 
 local F = string.format
 
+defaultFont = love.graphics.getFont()
+
 game = {
   config = {
     ldist = 1,
@@ -30,9 +32,7 @@ game = {
   playerSize = {
     32,32
   },
-  state = {
-    'menu'
-  }
+  state = {'menu','main'}
 }
 world  = {
   name = 'World',
@@ -268,7 +268,9 @@ function love.draw()
   local g = love.graphics
   g.setColor(1,1,1)
   if game.state[1]=='menu' then
-    menu.draw()
+    g.push()
+      menu.draw()
+    g.pop()
   elseif game.state[1]=='game' then
     local w,h = g.getDimensions()
     local chs = world.chunkSize*world.tileSize
