@@ -1,3 +1,5 @@
+local F = string.format
+
 menu = {
   var = {
     main = {
@@ -25,6 +27,15 @@ menu = {
           text = 'Options',
           action = function(self,i)
             table.remove(menu.var.main.buttons,i)
+          end
+        },
+        {
+          text = 'toggleDebug',
+          action = function(self)
+            local c = game.config.debug
+            for i,v in pairs(c) do
+              c[i]=not c[i]
+            end
           end
         },
         {
@@ -104,6 +115,8 @@ function menu.draw()
       local ph = 4
       local mw,mh = 5,3
       
+      g.origin()
+      
       local trx,try = w/2,menuy+ph
       g.translate(trx,try)
       for i,v in ipairs(var.buttons) do
@@ -156,7 +169,16 @@ function menu.draw()
     g.pop()
   end
   
-  g.setFont(defaultFont)
+  do --FPS/Info
+    g.setFont(defaultFont)
+    g.setColor(1,1,1)
+    local info
+    if game.config.debug.enableDebugInfo then
+      g.setColor(1,0,0)
+      info = '[Debug Info ON]'
+    end
+    g.print(F('%s FPS %s',love.timer.getFPS(),info or ''))
+  end
 end
 
 function menu.update(dt) end

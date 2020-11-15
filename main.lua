@@ -14,6 +14,7 @@ defaultFont = love.graphics.getFont()
 game = {
   config = {
     ldist = 1,
+    fpsCounter=true,
     debug = {
       enableZoom = true,
       drawChunkBorders = true,
@@ -28,7 +29,7 @@ game = {
       receiveMultiple = true,
       deduplicateChunks = true,
       runUnloader = true,
-    },
+    }
   },
   playerSize = {
     32,32
@@ -139,7 +140,6 @@ function chunkLoader(playerChunk,force,unloadOnly)
         table.remove(world.chunks,i)
         print'[Warning] Overlapping Chunk!'
       end
-      --assert(bkt[s]==nil, 'Overlapping chunks!')
       bkt[s] = v
     end
   end
@@ -332,6 +332,8 @@ function love.draw()
           (world.compression and 'Enabled') or 'Disabled'
         )
       )
+    elseif game.config.fpsCounter then
+      g.print(love.timer.getFPS())
     end
   end
 end
