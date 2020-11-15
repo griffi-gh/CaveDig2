@@ -95,7 +95,7 @@ function menu.draw()
         --
         if h then
           v.hovt = math.min(1,v.hovt+.1*love.timer.getDelta()*60)
-          if love.mouse.isDown(1) then
+          if v.action and love.mouse.isDown(1) then
             v.action()
           end
         else
