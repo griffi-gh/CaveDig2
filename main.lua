@@ -4,6 +4,7 @@ Camera = require'lib.camera'
 require'save'
 require'gen'
 require'thr'
+require'menu' 
 
 local F = string.format
 
@@ -65,6 +66,10 @@ obj = {
     color = {.25,.16,.08}
   },
 }
+
+function game.switchState(new)
+  game.nextState = new
+end
 
 function love.quit()
   love.window.close()
@@ -176,8 +181,12 @@ function love.load(args)
 end
 
 function love.update(dt)
+  if game.nextState then
+    game.state = game.nextState
+    game.nextState = nil
+  end
   if game.state[1]=='menu' then
-    
+    menu.update(dt)
   elseif game.state[1]=='game' then
     local isd = love.keyboard.isDown
     local sp = 4
@@ -259,14 +268,7 @@ function love.draw()
   local g = love.graphics
   g.setColor(1,1,1)
   if game.state[1]=='menu' then
-    g.scale(math.abs(math.sin(love.timer.getTime())*10))
-    g.setColor(love.math.random(),love.math.random(),love.math.random())
-    g.print'Awesum menuy\nclIckk scaPE!11!!!!1\n \t\t\tto pALY'
-    g.setColor(1,1,1)
-    if love.keyboard.isDown'space' then
-      game.state={'game'}
-    end
-    g.scale(1)
+    menu.draw()
   elseif game.state[1]=='game' then
     local w,h = g.getDimensions()
     local chs = world.chunkSize*world.tileSize
