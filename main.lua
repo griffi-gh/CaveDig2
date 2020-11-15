@@ -323,7 +323,7 @@ function love.draw()
     if game.config.debug.enableDebugInfo then
       g.print(
         string.format(
-          '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %e_%s\nPlayer Pos:\n\tx:%s \n\ty:%s\nCompression %s',
+          '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %g_%g\nPlayer x:%g\ny:%g\nCompression %s',
           love.timer.getFPS(),
           #world.chunks,
           love.thread.getChannel('unload'):getCount(),
