@@ -193,4 +193,9 @@ function menu.draw()
   end
 end
 
-function menu.update(dt) end
+function menu.update(dt)
+  if game.config.debug.spaceToPlay and love.keyboard.isDown'space' then
+    game.switchState{'game'}
+    return
+  end
+end

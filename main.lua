@@ -19,7 +19,8 @@ game = {
       enableZoom = true,
       drawChunkBorders = true,
       enableDebugInfo = true,
-      debugDrawDirt = true
+      debugDrawDirt = true,
+      spaceToPlay = true,
     },
     thread = { --experimental
       enable = true,
