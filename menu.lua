@@ -16,7 +16,7 @@ menu = {
         {
           text = 'Multiplayer',
           action = function()
-            game.switchState{'menu','servers'}
+            game.switchState{'menu','serverBrowser'}
           end
         },
         {
@@ -122,6 +122,13 @@ function menu.draw()
       g.origin()
       
     end
+  elseif game.state[2]=='serverBrowser' then
+    g.push()
+      g.clear(1,0,0)
+      g.setColor(0,0,0)
+      g.scale(23)
+      g.print('TODO')
+    g.pop()
   end
   
   g.setFont(defaultFont)
