@@ -259,10 +259,14 @@ function love.draw()
   local g = love.graphics
   g.setColor(1,1,1)
   if game.state[1]=='menu' then
+    g.scale(math.abs(math.sin(love.timer.getTime())*10))
+    g.setColor(love.math.random(),love.math.random(),love.math.random())
     g.print'Awesum menuy\nclIckk scaPE!11!!!!1\n \t\t\tto pALY'
+    g.setColor(1,1,1)
     if love.keyboard.isDown'space' then
       game.state={'game'}
     end
+    g.scale(1)
   elseif game.state[1]=='game' then
     local w,h = g.getDimensions()
     local chs = world.chunkSize*world.tileSize
