@@ -29,7 +29,9 @@ game = {
   playerSize = {
     32,32
   },
-  state = {}
+  state = {
+    'menu'
+  }
 }
 world  = {
   name = 'World',
@@ -174,141 +176,151 @@ function love.load(args)
 end
 
 function love.update(dt)
-  local isd = love.keyboard.isDown
-  local sp = 4
-  local spd = sp*dt*60
-  if isd'left' or isd'a' then
-    player.x=player.x-spd
-  end
-  if isd'right' or isd'd' then
-    player.x=player.x+spd
-  end
-  if isd'up' or isd'w' then
-    player.y=player.y-spd
-  end
-  if isd'down' or isd's' then
-    player.y=player.y+spd
-  end
-  
-  if game.config.debug.debugDrawDirt then
-    if love.mouse.isDown(1) then
-      for i,v in ipairs(world.chunks) do
-        if v.x==playerChunk[1] and v.y==playerChunk[2] then
-          local mx,my = love.mouse.getPosition()
-          local lx,ly = math.floor(mx/world.tileSize)+1,math.floor(my/world.tileSize)+1
-          if v.data[lx] and v.data[lx][ly] then
-            v.data[lx][ly].floor.id = 2
+  if game.state[1]=='menu' then
+    
+  elseif game.state[1]=='game' then
+    local isd = love.keyboard.isDown
+    local sp = 4
+    local spd = sp*dt*60
+    if isd'left' or isd'a' then
+      player.x=player.x-spd
+    end
+    if isd'right' or isd'd' then
+      player.x=player.x+spd
+    end
+    if isd'up' or isd'w' then
+      player.y=player.y-spd
+    end
+    if isd'down' or isd's' then
+      player.y=player.y+spd
+    end
+    
+    if game.config.debug.debugDrawDirt then
+      if love.mouse.isDown(1) then
+        for i,v in ipairs(world.chunks) do
+          if v.x==playerChunk[1] and v.y==playerChunk[2] then
+            local mx,my = love.mouse.getPosition()
+            local lx,ly = math.floor(mx/world.tileSize)+1,math.floor(my/world.tileSize)+1
+            if v.data[lx] and v.data[lx][ly] then
+              v.data[lx][ly].floor.id = 2
+            end
+            break
           end
-          break
         end
       end
     end
-  end
-  
-  camera:follow(player.x+game.playerSize[1],player.y+game.playerSize[2])
-  camera:update(dt)
-  
-  local cs  = world.chunkSize * world.tileSize
-  local ldist = math.floor(game.config.ldist)
-  
-  local dif = {
-    (playerChunk or {})[1],
-    (playerChunk or {})[2]
-  }
-  _G.playerChunk = {
-    math.floor((player.x+game.playerSize[1]/2)/cs)+1,
-    math.floor((player.y+game.playerSize[2]/2)/cs)+1,
-  }
-  
-  if game.config.thread.enable and game.config.thread.multithreadLoad then
-    local loaded = false
-    while true do
-      local p = love.thread.getChannel('loadReturn'):pop()
-      if p then
-        table.insert(world.chunks,p)
-        loaded = true
-        if not game.config.thread.receiveMultiple then
+    
+    camera:follow(player.x+game.playerSize[1],player.y+game.playerSize[2])
+    camera:update(dt)
+    
+    local cs  = world.chunkSize * world.tileSize
+    local ldist = math.floor(game.config.ldist)
+    
+    local dif = {
+      (playerChunk or {})[1],
+      (playerChunk or {})[2]
+    }
+    _G.playerChunk = {
+      math.floor((player.x+game.playerSize[1]/2)/cs)+1,
+      math.floor((player.y+game.playerSize[2]/2)/cs)+1,
+    }
+    
+    if game.config.thread.enable and game.config.thread.multithreadLoad then
+      local loaded = false
+      while true do
+        local p = love.thread.getChannel('loadReturn'):pop()
+        if p then
+          table.insert(world.chunks,p)
+          loaded = true
+          if not game.config.thread.receiveMultiple then
+            break
+          end
+        else
           break
         end
-      else
-        break
+      end
+      if loaded then
+        if game.config.thread.deduplicateChunks then
+          deduplicateChunks()
+        end
+        if game.config.thread.runUnloader then
+          chunkLoader(nil,true,true)
+        end
       end
     end
-    if loaded then
-      if game.config.thread.deduplicateChunks then
-        deduplicateChunks()
-      end
-      if game.config.thread.runUnloader then
-        chunkLoader(nil,true,true)
-      end
+    
+    if dif[1]~=playerChunk[1] or dif[2]~=playerChunk[2] then
+      chunkLoader()
     end
-  end
-  
-  if dif[1]~=playerChunk[1] or dif[2]~=playerChunk[2] then
-    chunkLoader()
   end
 end
 
 function love.draw()
   local g = love.graphics
   g.setColor(1,1,1)
-  local w,h = g.getDimensions()
-  local chs = world.chunkSize*world.tileSize
-  local uldist = game.config.uldist
-  if game.config.debug.enableZoom and love.keyboard.isDown('z') then
-    g.translate(w/3,h/3)
-    g.scale(.25)
-  end
-  camera:attach()
-    for cid,ch in ipairs(world.chunks) do
-      local chox,choy = chs*(ch.x-1), chs*(ch.y-1)
-      local cchox,cchoy = camera:toCameraCoords(chox,choy)
-      do
-        for y=1,world.chunkSize do
-          for x=1,world.chunkSize do
-            local xr = ch.data[x]
-            if xr then
-              local v = xr[y]
-              if v then
-                local e = obj[0]
-                do
-                  local fl = obj[v.floor.id]
-                  local t
-                  if fl then
-                    t = fl.texture
-                  else
-                    t = obj[0].texture
-                  end
-                  local fx,fy   = chox+(x-1)*world.tileSize,choy+(y-1)*world.tileSize
-                  local cfx,cfy = camera:toCameraCoords(fx,fy)
-                  if cfx>=-world.tileSize and cfy>=-world.tileSize and cfx<=w and cfy<=h then
-                    g.draw(t,fx,fy)
+  if game.state[1]=='menu' then
+    g.print'Awesum menuy\nclIckk scaPE!11!!!!1\n \t\t\tto pALY'
+    if love.keyboard.isDown'space' then
+      game.state={'game'}
+    end
+  elseif game.state[1]=='game' then
+    local w,h = g.getDimensions()
+    local chs = world.chunkSize*world.tileSize
+    if game.config.debug.enableZoom and love.keyboard.isDown('z') then
+      g.translate(w/3,h/3)
+      g.scale(.25)
+    end
+    camera:attach()
+      for cid,ch in ipairs(world.chunks) do
+        local chox,choy = chs*(ch.x-1), chs*(ch.y-1)
+        local cchox,cchoy = camera:toCameraCoords(chox,choy)
+        do
+          for y=1,world.chunkSize do
+            for x=1,world.chunkSize do
+              local xr = ch.data[x]
+              if xr then
+                local v = xr[y]
+                if v then
+                  local e = obj[0]
+                  do
+                    local fl = obj[v.floor.id]
+                    local t
+                    if fl then
+                      t = fl.texture
+                    else
+                      t = obj[0].texture
+                    end
+                    local fx,fy   = chox+(x-1)*world.tileSize,choy+(y-1)*world.tileSize
+                    local cfx,cfy = camera:toCameraCoords(fx,fy)
+                    if cfx>=-world.tileSize and cfy>=-world.tileSize and cfx<=w and cfy<=h then
+                      g.draw(t,fx,fy)
+                    end
                   end
                 end
               end
             end
           end
-        end
-        if game.config.debug.drawChunkBorders then
-          g.print('CHUNK'..ch.x..'_'..ch.y..' id:'..cid,chox+2,choy+2)
-          g.rectangle('line',chox,choy,chs,chs)
+          if game.config.debug.drawChunkBorders then
+            g.print('CHUNK'..ch.x..'_'..ch.y..' id:'..cid,chox+2,choy+2)
+            g.rectangle('line',chox,choy,chs,chs)
+          end
         end
       end
-    end
-    g.rectangle('line',player.x,player.y,unpack(game.playerSize))
-  camera:detach()
-  if game.config.debug.enableDebugInfo then
-    g.print(
-      string.format(
-        '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %s_%s\nCompression %s',
-        love.timer.getFPS(),
-        #world.chunks,
-        love.thread.getChannel('unload'):getCount(),
-        love.thread.getChannel('loadRequests'):getCount(),
-        love.thread.getChannel('loadReturn'):getCount(),
-        playerChunk[1],playerChunk[2],
-        (world.compression and 'Enabled') or 'Disabled'
+      g.rectangle('line',player.x,player.y,unpack(game.playerSize))
+    camera:detach()
+    if game.config.debug.enableDebugInfo then
+      g.print(
+        string.format(
+          '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %s_%s\nCompression %s',
+          love.timer.getFPS(),
+          #world.chunks,
+          love.thread.getChannel('unload'):getCount(),
+          love.thread.getChannel('loadRequests'):getCount(),
+          love.thread.getChannel('loadReturn'):getCount(),
+          playerChunk[1],playerChunk[2],
+          (world.compression and 'Enabled') or 'Disabled'
+        )
       )
-    )
+    end
   end
 end
