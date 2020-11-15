@@ -114,7 +114,9 @@ function menu.draw()
       
       local menuy = h/2
       local ph = 4
-      local mw,mh = 5,3
+      local mw,mh = 8,3
+      
+      local minmw = 2
       
       g.origin()
       
@@ -122,34 +124,43 @@ function menu.draw()
       g.translate(trx,try)
       for i,v in ipairs(var.buttons) do
         v.hovt = v.hovt or 0
+        v.clkt = v.clkt or 0
         local t = v.text
         local fw = f:getWidth(t)
         local x = math.floor(-maxw/2)-mw
+        local y = 0
         local tx = math.floor(-fw/2)
         local rw,rh = maxw+mw*2,fh+mh*2
-        local h = mx>trx+x and mx<trx+x+rw and my>try and my<try+rh
+        local h = mx>trx+x and mx<trx+x+rw and my>try+y and my<try+rh+y
         --
+        local hf = .1*love.timer.getDelta()*60
         if h then
-          v.hovt = math.min(1,v.hovt+.1*love.timer.getDelta()*60)
-          if v.action and md then
+          v.hovt = math.min(1,v.hovt+hf)
+          if mdr then
+            v.clkt = math.min(1,v.clkt+hf*4)
+          end
+          if v.action and md2 then
             v:action(i)
           end
         else
-          v.hovt = math.max(0,v.hovt-.1*love.timer.getDelta()*60)
+          v.hovt = math.max(0,v.hovt-hf)
+          v.clkt = math.max(0,v.clkt-hf)
         end
+        local vrw = rw-v.clkt*(mw-minmw)*2
+        local vx = x+v.clkt*(mw-minmw)
         --
         local ch1 = v.bgHoverColor or {.6,.6,.6,.8}
         local cb1 = v.bgColor or {0,0,0,.65}
         local mx1 = mixColor(ch1,cb1,v.hovt)
         g.setColor(mx1)
-        g.rectangle('fill',x,0,rw,rh)
+        g.rectangle('fill',vx,0,vrw,rh)
         
         local ch2 = v.borderHoverColor or {.5,.5,.5,.8}
         local cb2 = v.borderColor or {.5,.5,.5,.8}
         local mx2 = mixColor(ch1,cb1,v.hovt)
         g.setColor(mx2)
         g.setLineWidth(2)
-        g.rectangle('line',x,0,rw,rh)
+        g.rectangle('line',vx,0,vrw,rh)
         
         g.setColor(v.textColor or {1,1,1})
         g.print(t,tx,mh)
