@@ -26,7 +26,8 @@ menu = {
           action = function()
             love.event.quit()
           end,
-          bgHoverColor = {1,.2,.2,.8}
+          bgHoverColor = {1,.2,.2,.7},
+          borderHoverColor = {.3,0,0}
         }
       }
     }
@@ -113,14 +114,17 @@ function menu.draw()
           v.hovt = math.max(0,v.hovt-.1*love.timer.getDelta()*60)
         end
         --
-        local ch = v.bgHoverColor or {.6,.6,.6,.8}
-        local cb = v.bgColor or {0,0,0,.65}
-        local mx = mixColor(ch,cb,v.hovt)
-        g.setColor(mx)
+        local ch1 = v.bgHoverColor or {.6,.6,.6,.8}
+        local cb1 = v.bgColor or {0,0,0,.65}
+        local mx1 = mixColor(ch1,cb1,v.hovt)
+        g.setColor(mx1)
         g.rectangle('fill',x,0,rw,rh)
         
+        local ch2 = v.borderHoverColor or {.5,.5,.5,.8}
+        local cb2 = v.borderColor or {.5,.5,.5,.8}
+        local mx2 = mixColor(ch1,cb1,v.hovt)
+        g.setColor(mx2)
         g.setLineWidth(2)
-        g.setColor(v.borderColor or {.5,.5,.5,.8})
         g.rectangle('line',x,0,rw,rh)
         
         g.setColor(v.textColor or {1,1,1})
