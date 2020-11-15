@@ -132,8 +132,8 @@ function menu.draw()
         local rw,rh = maxw+mw*2,fh+mh*2
         local h = mx>trx+x and mx<trx+x+rw and my>try+y and my<try+rh+y
         --
-        local hf = .1*love.timer.getDelta()*60
-        if h then
+        local hf = .1*love.timer.getDelta()*60 --Animation Speed
+        if h then --Hover animation
           v.hovt = math.min(1,v.hovt+hf)
           if v.action and md2 then
             v:action(i)
@@ -141,13 +141,13 @@ function menu.draw()
         else
           v.hovt = math.max(0,v.hovt-hf)
         end
-        if mdr and h then
+        if mdr and h then --Hold Animation
           v.clkt = math.min(1,v.clkt+hf*4)
         else
           v.clkt = math.max(0,v.clkt-hf)
         end
-        local vrw = rw-v.clkt*(mw-minmw)*2
-        local vx = x+v.clkt*(mw-minmw)
+        local vrw = rw-v.clkt*(mw-minmw)*2 --Visual width
+        local vx = x+v.clkt*(mw-minmw) --Visual X
         --
         local ch1 = v.bgHoverColor or {.6,.6,.6,.8}
         local cb1 = v.bgColor or {0,0,0,.65}
