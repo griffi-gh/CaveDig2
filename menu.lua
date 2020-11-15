@@ -17,8 +17,14 @@ menu = {
         },
         {
           text = 'Multiplayer',
-          action = function()
-            game.switchState{'menu','serverBrowser'}
+          action = function(self,i)
+            table.remove(menu.var.main.buttons,i)
+          end
+        },
+        {
+          text = 'Options',
+          action = function(self,i)
+            table.remove(menu.var.main.buttons,i)
           end
         },
         {
@@ -49,11 +55,14 @@ local function off(x,s,d)
   return -((x*s)%1)*d
 end
 
+local mdp
 function menu.draw()
   local g = love.graphics
   local w,h = g.getDimensions()
   local mx,my = love.mouse.getPosition()
-  
+  local mdr = love.mouse.isDown(1)
+  local md = mdr and not mdp
+  mdp = mdr
   if game.state[2]=='main' then
     local var = menu.var.main
     
@@ -108,8 +117,8 @@ function menu.draw()
         --
         if h then
           v.hovt = math.min(1,v.hovt+.1*love.timer.getDelta()*60)
-          if v.action and love.mouse.isDown(1) then
-            v.action()
+          if v.action and md then
+            v:action(i)
           end
         else
           v.hovt = math.max(0,v.hovt-.1*love.timer.getDelta()*60)
