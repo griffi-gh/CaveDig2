@@ -73,6 +73,7 @@ function menu.draw()
   local mx,my = love.mouse.getPosition()
   local mdr = love.mouse.isDown(1)
   local md = mdr and not mdp
+  local md2 = mdp and not mdr
   mdp = mdr
   if game.state[2]=='main' then
     local var = menu.var.main
