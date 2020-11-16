@@ -264,7 +264,12 @@ function love.update(dt)
 end
 
 function love.draw()
+  --locals
+  local world,player,game,obj = world,player,game,obj 
   local g = love.graphics
+  local draw = g.draw
+  --
+  
   g.setColor(1,1,1)
   local w,h = g.getDimensions()
   
@@ -302,7 +307,7 @@ function love.draw()
                     local fx,fy   = chox+(x-1)*world.tileSize,choy+(y-1)*world.tileSize
                     local cfx,cfy = camera:toCameraCoords(fx,fy)
                     if cfx>=-world.tileSize and cfy>=-world.tileSize and cfx<=w and cfy<=h then
-                      g.draw(t,fx,fy)
+                      draw(t,fx,fy)
                     end
                   end
                 end
@@ -332,7 +337,7 @@ function love.draw()
         )
       )
     elseif game.config.fpsCounter then
-      g.print(love.timer.getFPS())
+      g.print(love.timer.getFPS()..'FPS')
     end
   end
 end
