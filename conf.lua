@@ -5,4 +5,5 @@ function love.conf(t)
   t.externalstorage = true
   t.window.vsync = 1
   t.window.fullscreen = false
+  t.window.resizable = false
 end

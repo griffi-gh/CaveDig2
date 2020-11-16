@@ -39,18 +39,27 @@ game = {
   },
   state = {'menu','main'}
 }
-world  = {
-  name = 'World',
-  chunks = {},
-  chunkSize = 16,
-  tileSize = 32,
-  compression = true
-}
-player = {
-  name = 'Player',
-  x = 0,
-  y = 0,
-}
+
+function worldDefualt(n)
+  return {
+    name = n or'World',
+    chunks = {},
+    chunkSize = 16,
+    tileSize = 32,
+    compression = true
+  }
+end
+world = worldDefualt()
+
+function playerDefault(n)
+  return {
+    name = n or 'Player',
+    x = 0,
+    y = 0,
+  }
+end 
+player = playerDefault()
+
 obj = {
   [0] = {
     type = 'uknown',

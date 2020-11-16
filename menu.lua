@@ -15,7 +15,8 @@ menu = {
     },
     worlds = {
       buthl = {},
-      backhl = 0
+      backhl = 0,
+      newhl = 0 ,
     },
     main = {
       logo = 'MAIN MENU',
@@ -199,21 +200,14 @@ function menu.draw()
     g.setLineWidth(2)
     g.rectangle('line',gm,gm,bw,bh)
     
-    --"logo"
-    local tf = menu.var.font[60]
-    g.setFont(tf)
-    g.setColor(1,1,1)
-    local titleh = tf:getHeight()+pad
-    local ttxt = 'Worlds'
-    g.print(
-      ttxt,
-      math.floor((w-tf:getWidth(ttxt))/2),
-      pad+gm
-    )
+    local tf = menu.var.font[60] --load logo font
     
-    
+    --back button
+    local bpad = 20
     local corner = pad+gm
-    local backs1,backs2 = 30,100
+    local font20 = menu.var.font[20]
+    local bktxt = 'BACK'
+    local backs1,backs2 = 30,font20:getWidth(bktxt)+bpad
     local backx,backy = corner+2,corner+(tf:getHeight()-backs1)/2
     local backh = mx>backx and my>backy and mx<backx+backs1+backs2 and my<backy+backs1
     if backh then
@@ -227,7 +221,7 @@ function menu.draw()
     end
     local backPoly = {
       backx+backs1,backy,
-      backx,backy+backs1/2,
+      backx,math.floor(backy+backs1/2)+1,
       backx+backs1,backy+backs1,
       backx+backs1+backs2,backy+backs1,
       backx+backs1+backs2,backy
@@ -241,17 +235,62 @@ function menu.draw()
     )
     g.polygon('fill',backPoly)
     g.setColor(.9,.1,.1,1)
-    g.setLineWidth(3)
+    g.setLineWidth(2)
     g.polygon('line',backPoly)
-    g.setLineWidth(1)
-    local bfont = menu.var.font[20]
-    local bktxt = 'BACK'
-    g.setFont(bfont)
+    g.setFont(font20)
     g.setColor(1,1,1)
     g.print(
       bktxt,
-      math.floor(backx+backs1+(backs2-bfont:getWidth(bktxt))/2),
-      math.floor(backy+(backs1-bfont:getHeight())/2)
+      math.floor(backx+backs1+(backs2-font20:getWidth(bktxt))/2),
+      math.floor(backy+(backs1-font20:getHeight())/2)
+    )
+    local backtw = backx+backs1+backs2
+    
+    local newtxt = 'NEW WORLD'
+    local newtxtw = font20:getWidth(newtxt)
+    local newx,newy = backtw+2,backy
+    local neww,newh = newtxtw+bpad,backs1
+    local newhld = mx>newx and my>newy and mx<newx+neww and my<newy+newh
+    if newhld then
+      var.newhl = math.min(1,var.newhl+hf)
+      if md2 then
+        love.filesystem.createDirectory(
+          save.getWorldDirectory(
+            'NewWorld'..love.math.random(100000,999999)
+          )
+        )
+      end
+    else
+      var.newhl = math.max(0,var.newhl-hf)
+    end
+    g.setColor(
+      mixColor(
+        {0,.8,0},
+        {.1,.75,.1,.5},
+        var.newhl
+      )
+    )
+    g.rectangle('fill',newx,newy,neww,newh)
+    g.setColor(.1,.75,.1,1)
+    g.rectangle('line',newx,newy,neww,newh)
+    g.setColor(1,1,1)
+    g.print(
+      newtxt,
+      math.floor(newx+neww/2-newtxtw/2),
+      math.floor(newy+newh/2-font20:getHeight()/2)
+    )
+    
+    g.setLineWidth(1)
+    
+    --"logo"
+    g.setFont(tf)
+    g.setColor(1,1,1)
+    local titleh = tf:getHeight()+pad
+    local ttxt = 'Worlds'
+    g.print(
+      ttxt,
+      math.floor((w-tf:getWidth(ttxt)+backtw+neww)/2),
+      pad+gm
     )
     
     local ipad = 5 --cards padding

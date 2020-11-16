@@ -140,10 +140,19 @@ function save.saveWorld(w,p)
 end
 
 function save.loadWorld(w,p)
-  local lw,lp
-  lp = save.loadPlayerData(w,p)
-  lw = save.loadWorldData(w)
-  return lw,lp
+  local lw,lp,e
+  if fs.getInfo(save.getPlayerFile(w,p))then
+    lp = save.loadPlayerData(w,p)
+  else
+    lp = playerDefault(gname(p))
+  end
+  if fs.getInfo(save.getDataFile(w)) then
+    lw = save.loadWorldData(w)
+    e = true
+  else
+    lw = worldDefualt(gname(w))
+  end
+  return lw,lp,e
 end
 ------------------
 save.defaultOptionsFile = 'game.options'
