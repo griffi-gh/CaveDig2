@@ -337,7 +337,7 @@ function love.draw()
         )
       )
     elseif game.config.fpsCounter then
-      g.print(love.timer.getFPS()..'FPS')
+      g.print(love.timer.getFPS()..' FPS')
     end
   end
 end
