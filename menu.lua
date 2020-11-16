@@ -261,6 +261,7 @@ function menu.draw()
             'NewWorld'..love.math.random(100000,999999)
           )
         )
+        var.worlds = save.enumerateWorlds()
       end
     else
       var.newhl = math.max(0,var.newhl-hf)
