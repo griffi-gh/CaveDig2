@@ -317,7 +317,7 @@ function menu.draw()
       if ph then
         hlt[i]=math.min(1,hlt[i]+hf)
         if md2 then
-          world,player = save.loadWorld(v,player)
+          world,player = save.loadWorld(v,player,true)
           game.switchState{'game'}
         end
       else

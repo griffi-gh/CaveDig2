@@ -139,17 +139,17 @@ function save.saveWorld(w,p)
   save.saveAllChunks(w)
 end
 
-function save.loadWorld(w,p)
+function save.loadWorld(w,p,ord)
   local lw,lp,e
   if fs.getInfo(save.getPlayerFile(w,p))then
     lp = save.loadPlayerData(w,p)
-  else
+  elseif ord then
     lp = playerDefault(gname(p))
   end
   if fs.getInfo(save.getDataFile(w)) then
     lw = save.loadWorldData(w)
     e = true
-  else
+  elseif ord then
     lw = worldDefualt(gname(w))
   end
   return lw,lp,e

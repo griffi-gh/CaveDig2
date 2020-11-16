@@ -90,7 +90,9 @@ function love.quit()
   if game.config.thread.enable then
     love.thread.getChannel('saveThread_quit'):supply(true)
   end
-  save.saveWorld(world,player)
+  if game.state[1]=='game' then
+    save.saveWorld(world,player)
+  end
 end
 
 local function saveChnk(v)
