@@ -3,6 +3,7 @@ function startSaveThread()
     [[
       require'love.timer'
       bitser = require'lib.bitser'
+      require'defaults'
       require'save'
       
       local q = love.thread.getChannel('saveThread_quit')

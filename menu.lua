@@ -14,6 +14,7 @@ menu = {
       scrSpeed = 1,
     },
     worlds = {
+      worlds = nil,
       buthl = {},
       backhl = 0,
       newhl = 0 ,
@@ -24,6 +25,7 @@ menu = {
         {
           text = 'Singleplayer',
           action = function() 
+            menu.var.worlds.worlds = save.enumerateWorlds()
             game.switchState{'menu','worlds'} 
             --game.switchState{'game'} 
           end
@@ -188,10 +190,10 @@ function menu.draw()
     end
   elseif game.state[2]=='worlds' then
     local var = menu.var.worlds
+    local worlds = var.worlds
     local bph = 100
     local gm = 10 --margin
     local pad = 15 --padding
-    local worlds = save.enumerateWorlds()
     local bw,bh = w-gm*2,h-gm*2 --bgbox w/h
     
     --bg box

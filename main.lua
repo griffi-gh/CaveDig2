@@ -3,6 +3,7 @@ Camera = require'lib.camera'
 socket = require'socket'
 
 require'fn'
+require'defaults'
 require'save'
 require'gen'
 require'thr'
@@ -40,24 +41,7 @@ game = {
   state = {'menu','main'}
 }
 
-function worldDefualt(n)
-  return {
-    name = n or'World',
-    chunks = {},
-    chunkSize = 16,
-    tileSize = 32,
-    compression = true
-  }
-end
 world = worldDefualt()
-
-function playerDefault(n)
-  return {
-    name = n or 'Player',
-    x = 0,
-    y = 0,
-  }
-end 
 player = playerDefault()
 
 obj = {
