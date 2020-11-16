@@ -1,10 +1,12 @@
 bitser = require'lib.bitser'
 Camera = require'lib.camera'
+socket = require'socket'
 
 require'fn'
 require'save'
 require'gen'
 require'thr'
+require'multiplayer'
 require'menu' 
 
 local F = string.format
