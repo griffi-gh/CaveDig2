@@ -221,12 +221,14 @@ function menu.draw()
     else
       var.backhl = math.max(0,var.backhl-hf)
     end
+    local vbackx = backx - var.backhl*10
+    local vbacks2 = backs2 + var.backhl*10
     local backPoly = {
-      backx+backs1,backy,
-      backx,math.floor(backy+backs1/2)+1,
-      backx+backs1,backy+backs1,
-      backx+backs1+backs2,backy+backs1,
-      backx+backs1+backs2,backy
+      vbackx+backs1,backy,
+      vbackx,math.floor(backy+backs1/2)+1,
+      vbackx+backs1,backy+backs1,
+      vbackx+backs1+vbacks2,backy+backs1,
+      vbackx+backs1+vbacks2,backy
     }
     g.setColor(
       mixColor(
@@ -243,7 +245,7 @@ function menu.draw()
     g.setColor(1,1,1)
     g.print(
       bktxt,
-      math.floor(backx+backs1+(backs2-font20:getWidth(bktxt))/2),
+      math.floor(vbackx+backs1+(vbacks2-font20:getWidth(bktxt))/2),
       math.floor(backy+(backs1-font20:getHeight())/2)
     )
     local backtw = backx+backs1+backs2
