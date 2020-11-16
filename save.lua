@@ -1,4 +1,5 @@
 save = {}
+local fs = love.filesystem
 ------------------
 local function gname(w)
   if type(w)=='table' then w=w.name end
@@ -10,8 +11,23 @@ local function gcmp(w,cmp)
   return r
 end
 ------------------
+save.WorldsDirectory = 'Worlds/'
+
+function save.enumerateWorlds()
+  local d = save.WorldsDirectory
+  local t = fs.getDirectoryItems(d)
+  local r = {}
+  for i,v in ipairs(t) do
+    local l = string.format('%s/%s',d,v)
+    if fs.getInfo(l,'directory') then
+      r[#r+1] = v
+    end
+  end
+  return r
+end
+
 function save.getWorldDirectory(w)
-  return 'Worlds/'..gname(w)
+  return save.WorldsDirectory..gname(w)
 end
 
 function save.getChunkDirectory(w)
@@ -34,8 +50,6 @@ function save.getPlayerFile(w,p)
   return string.format('%s/%s.plr',save.getPlayersDirectory(w),gname(p))
 end
 ------------------
-
-local fs = love.filesystem
 
 save.defaultCmpType = 'lz4'
 
@@ -93,7 +107,7 @@ end
 function save.loadWorldData(w)
   local f  = save.getDataFile(w)
   local r  = fs.read(f)
-  local d  = bitser.dumps(r)
+  local d  = bitser.loads(r)
   d.chunks = {} 
   d.name   = gname(w)
   return d
