@@ -11,6 +11,10 @@ function con_:send(event,data)
   )
 end
 
+function con_:reqChunk(cx,cy)
+  con_:send('rch',{cx,cy})
+end
+
 function mp.connect(ip,port)
   port = port or 10174
   local con = {}
