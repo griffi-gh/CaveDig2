@@ -320,7 +320,11 @@ function love.draw()
                         g.rectangle('fill',fx,fy,world.tileSize,world.tileSize)
                       else
                         local sx,sy = t:getDimensions()
-                        draw(t,fx,fy,0,world.tileSize/sx,world.tileSize/sy)
+                        draw(
+                          t,fx,fy,0,
+                          (fl.noScale and 1) or world.tileSize/sx,
+                          (fl.noScale and 1) or world.tileSize/sy
+                        )
                       end
                     end
                   end
