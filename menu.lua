@@ -9,7 +9,7 @@ menu = {
       [100] = love.graphics.newFont(100),
     },
     bg = {
-      background = love.graphics.newImage('res/dirt.png'),
+      background = love.graphics.newImage('res/32/dirt.png'),
       background_quad = nil,
       scrSpeed = 1,
     },

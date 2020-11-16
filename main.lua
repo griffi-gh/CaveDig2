@@ -51,22 +51,27 @@ obj = {
   [0] = {
     type = 'uknown',
     name = '???',
-    texture = love.graphics.newImage('res/err.png'),
+    texture = love.graphics.newImage('res/32/err.png'),
     color = {0,0,0}
   },
   {
     type = 'floor',
     name = 'Grass (Floor)',
-    texture = love.graphics.newImage('res/grass.png'),
+    texture = love.graphics.newImage('res/32/grass.png'),
     color = {.3,.65,.1}
   },
   {
     type = 'floor',
     name = 'Dirt (Floor)',
-    texture = love.graphics.newImage('res/dirt.png'),
+    texture = love.graphics.newImage('res/32/dirt.png'),
     color = {.25,.16,.08}
   },
 }
+for i,v in ipairs(obj) do
+  if v.texture then
+    v.texture:setFilter('nearest','nearest',1)
+  end
+end
 
 function game.switchState(new)
   game.nextState = new
@@ -314,8 +319,8 @@ function love.draw()
                         g.setColor(fl.color)
                         g.rectangle('fill',fx,fy,world.tileSize,world.tileSize)
                       else
-                        g.setColor(1,1,1)
-                        draw(t,fx,fy)
+                        local sx,sy = t:getDimensions()
+                        draw(t,fx,fy,0,world.tileSize/sx,world.tileSize/sy)
                       end
                     end
                   end
