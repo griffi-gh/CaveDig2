@@ -18,6 +18,9 @@ game = {
   config = {
     ldist = 1,
     fpsCounter=true,
+    graphics = {
+      noFloorTextures = false,
+    },
     debug = {
       enableZoom = true,
       drawChunkBorders = true,
@@ -55,7 +58,7 @@ obj = {
     type = 'floor',
     name = 'Grass (Floor)',
     texture = love.graphics.newImage('res/grass.png'),
-    color = {1,.1,.1}
+    color = {.3,.65,.1}
   },
   {
     type = 'floor',
@@ -307,7 +310,13 @@ function love.draw()
                     local fx,fy   = chox+(x-1)*world.tileSize,choy+(y-1)*world.tileSize
                     local cfx,cfy = camera:toCameraCoords(fx,fy)
                     if cfx>=-world.tileSize and cfy>=-world.tileSize and cfx<=w and cfy<=h then
-                      draw(t,fx,fy)
+                      if game.config.graphics.noFloorTextures then
+                        g.setColor(fl.color)
+                        g.rectangle('fill',fx,fy,world.tileSize,world.tileSize)
+                      else
+                        g.setColor(1,1,1)
+                        draw(t,fx,fy)
+                      end
                     end
                   end
                 end
@@ -315,6 +324,7 @@ function love.draw()
             end
           end
           if game.config.debug.drawChunkBorders then
+            g.setColor(1,1,1)
             g.print('CHUNK'..ch.x..'_'..ch.y..' id:'..cid,chox+2,choy+2)
             g.rectangle('line',chox,choy,chs,chs)
           end
