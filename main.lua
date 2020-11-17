@@ -2,8 +2,10 @@ bitser = require'lib.bitser'
 Camera = require'lib.camera'
 socket = require'socket'
 
+require'fonts'
 require'fn'
 require'defaults'
+require'inputui'
 require'save'
 require'gen'
 require'thr'
@@ -11,8 +13,6 @@ require'multiplayer'
 require'menu' 
 
 local F = string.format
-
-defaultFont = love.graphics.getFont()
 
 game = {
   config = {
@@ -41,7 +41,8 @@ game = {
   playerSize = {
     32,32
   },
-  state = {'menu','main'}
+  state = {'menu','main'},
+  blockInput = {},
 }
 
 world = worldDefualt()
@@ -188,6 +189,7 @@ function love.load(args)
 end
 
 function love.update(dt)
+  game.blockInput = {}
   if game.nextState then
     game.state = game.nextState
     game.nextState = nil

@@ -84,7 +84,7 @@ function menu.draw()
   local g = love.graphics
   local w,h = g.getDimensions()
   local mx,my = love.mouse.getPosition()
-  local mdr = love.mouse.isDown(1)
+  local mdr = love.mouse.isDown(1) and not(game.blockInput.m1)
   local md = mdr and not mdp
   local md2 = mdp and not mdr
   mdp = mdr
@@ -107,7 +107,7 @@ function menu.draw()
   if game.state[2]=='main' then
     local var = menu.var.main
     do --logo
-      local f = menu.var.font[100]
+      local f = fonts[100]
       local t = var.logo
       g.setFont(f)
       g.setColor(1,1,1)
@@ -119,7 +119,7 @@ function menu.draw()
     end
     
     do --buttons
-      local f = menu.var.font[20]
+      local f = fonts[20]
       local fh = f:getHeight()
       local but = var.buttons
       g.setFont(f)
@@ -202,12 +202,12 @@ function menu.draw()
     g.setLineWidth(2)
     g.rectangle('line',gm,gm,bw,bh)
     
-    local tf = menu.var.font[60] --load logo font
+    local tf = fonts[60] --load logo font
     
     --back button
     local bpad = 20
     local corner = pad+gm
-    local font20 = menu.var.font[20]
+    local font20 = fonts[20]
     local bktxt = 'BACK'
     local backs1,backs2 = 30,font20:getWidth(bktxt)+bpad
     local backx,backy = corner+2,corner+(tf:getHeight()-backs1)/2
@@ -300,7 +300,7 @@ function menu.draw()
     
     local ipad = 5 --cards padding
     local cspc = 10 -- cards dist
-    local f = menu.var.font[30] --World name font
+    local f = fonts[30] --World name font
     g.setFont(f)
     
     local trx,try = gm+pad,gm+pad+titleh
