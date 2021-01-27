@@ -20,7 +20,7 @@ menu = {
       newhl = 0 ,
     },
     main = {
-      logo = 'MAIN MENU',
+      logo = 'CAVEDIG 2',
       buttons = {
         {
           text = 'Singleplayer',
