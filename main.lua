@@ -1,5 +1,6 @@
 bitser = require'lib.bitser'
 Camera = require'lib.camera'
+wf = require'lib.windfield'
 socket = require'socket'
 
 require'fonts'
@@ -10,6 +11,7 @@ require'save'
 require'gen'
 require'thr'
 require'multiplayer'
+require'physics'
 require'menu'
 
 local F = string.format
@@ -55,11 +57,11 @@ obj = {
     texture = love.graphics.newImage('res/32/err.png'),
     color = {0,0,0}
   },
-   {
+  {
     type = 'tile',
     name = 'air',
-    texture = love.graphics.newImage('res/32/air.png'),
-    color = {0,0,0}
+    --texture = love.graphics.newImage('res/32/air.png'),
+    color = {0,0,0,0}
   },
   {
     type = 'tile',
@@ -92,6 +94,13 @@ obj = {
     color = {.25,.16,.08}
   },
 }
+
+misc_textures = {
+  save_icon = love.graphics.newImage('res/save.png')
+}
+
+local save_opacity = 0 
+
 for i,v in ipairs(obj) do
   if v.texture then
     v.texture:setFilter('nearest','nearest',1)
@@ -319,6 +328,8 @@ function love.draw()
     g.pop()
   elseif game.state[1]=='game' then
     local chs = world.chunkSize*world.tileSize
+    g.setColor(.6,.6,1) --TODO TRANSITION
+    g.rectangle('fill',0,0,w,h)
     camera:attach()
       for cid,ch in ipairs(world.chunks) do
         local chox,choy = chs*(ch.x-1), chs*(ch.y-1)
@@ -332,25 +343,26 @@ function love.draw()
                 if v then
                   local e = obj[0]
                   do
-                    local fl = obj[v.tile.id]
+                    local tile = obj[v.tile.id]
                     local t
-                    if fl then
-                      t = fl.texture
+                    if tile then
+                      t = tile.texture
                     else
                       t = obj[0].texture
                     end
                     local fx,fy   = chox+(x-1)*world.tileSize,choy+(y-1)*world.tileSize
                     local cfx,cfy = camera:toCameraCoords(fx,fy)
                     if cfx>=-world.tileSize and cfy>=-world.tileSize and cfx<=w and cfy<=h then
-                      if game.config.graphics.noFloorTextures then
-                        g.setColor(fl.color)
+                      if t==nil or game.config.graphics.noFloorTextures then
+                        g.setColor(tile.color)
                         g.rectangle('fill',fx,fy,world.tileSize,world.tileSize)
                       else
                         local sx,sy = t:getDimensions()
+                        g.setColor(1,1,1)
                         draw(
                           t,fx,fy,0,
-                          (fl.noScale and 1) or world.tileSize/sx,
-                          (fl.noScale and 1) or world.tileSize/sy
+                          (tile.noScale and 1) or world.tileSize/sx,
+                          (tile.noScale and 1) or world.tileSize/sy
                         )
                       end
                     end
@@ -368,7 +380,24 @@ function love.draw()
       end
       g.rectangle('line',player.x,player.y,unpack(game.playerSize))
     camera:detach()
+    
+    if (love.thread.getChannel('unload'):getCount()+
+      love.thread.getChannel('loadRequests'):getCount()+
+      love.thread.getChannel('loadReturn'):getCount())>0 then
+      save_opacity = 1
+    end
+    do
+      local texture = misc_textures.save_icon
+      local scale = 1/16 --32x32
+      local offset = 16
+      local size = texture:getWidth()*scale
+      g.setColor(1,1,1,save_opacity*.75)
+      save_opacity = save_opacity-love.timer.getDelta()*2
+      g.draw(texture,w-size-offset,h-size-offset,0,scale,scale)
+    end
+    
     if game.config.debug.enableDebugInfo then
+      g.setColor(1,1,1)
       g.print(
         string.format(
           '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %g_%g\nPlayer x:%g\ny:%g\nCompression %s',
