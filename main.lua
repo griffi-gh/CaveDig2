@@ -12,8 +12,6 @@ require'thr'
 require'multiplayer'
 require'menu'
 
-love.math.setRandomSeed(love.math.random(1,2432432434534))
-
 local F = string.format
 
 game = {
