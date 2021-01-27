@@ -10,7 +10,9 @@ require'save'
 require'gen'
 require'thr'
 require'multiplayer'
-require'menu' 
+require'menu'
+
+love.math.setRandomSeed(love.math.random(1,2432432434534))
 
 local F = string.format
 
@@ -31,7 +33,7 @@ game = {
     thread = { --experimental
       enable = true,
       waitForThreads = false,
-      multithreadSave = true, 
+      multithreadSave = true,
       multithreadLoad = true,
       receiveMultiple = true,
       deduplicateChunks = true,
@@ -50,21 +52,45 @@ player = playerDefault()
 
 obj = {
   [0] = {
-    type = 'uknown',
+    type = 'unknown',
     name = '???',
     texture = love.graphics.newImage('res/32/err.png'),
     color = {0,0,0}
   },
+   {
+    type = 'tile',
+    name = 'air',
+    texture = love.graphics.newImage('res/32/air.png'),
+    color = {0,0,0}
+  },
   {
-    type = 'floor',
-    name = 'Grass (Floor)',
+    type = 'tile',
+    name = 'Grass (tile)',
     texture = love.graphics.newImage('res/32/grass.png'),
     color = {.3,.65,.1}
   },
   {
-    type = 'floor',
-    name = 'Dirt (Floor)',
+    type = 'tile',
+    name = 'Dirt (tile)',
     texture = love.graphics.newImage('res/32/dirt.png'),
+    color = {.25,.16,.08}
+  },
+  {
+    type = 'tile',
+    name = 'Stone (tile)',
+    texture = love.graphics.newImage('res/32/stone.png'),
+    color = {.25,.16,.08}
+  },
+  {
+    type = 'tile',
+    name = 'Log (tile)',
+    texture = love.graphics.newImage('res/32/wood.png'),
+    color = {.25,.16,.08}
+  },
+  {
+    type = 'tile',
+    name = 'Leaves (tile)',
+    texture = love.graphics.newImage('res/32/leaves.png'),
     color = {.25,.16,.08}
   },
 }
@@ -89,7 +115,7 @@ function love.quit()
 end
 
 local function saveChnk(v)
-  if game.config.thread.enable and game.config.thread.multithreadSave then 
+  if game.config.thread.enable and game.config.thread.multithreadSave then
     love.thread.getChannel('unload'):push({world.name,v,world.compression})
   else
     save.saveChunk(world,v)
@@ -122,12 +148,12 @@ function chunkLoader(playerChunk,force,unloadOnly)
   playerChunk = playerChunk or _G.playerChunk -- **TODO** remove this
   local cs  = world.chunkSize * world.tileSize
   local ldist = math.floor(game.config.ldist)
-  
+
   if game.config.thread.enable and not(force) and game.config.thread.waitForThreads then
     while (
-      love.thread.getChannel('unload'):getCount()>0 
+      love.thread.getChannel('unload'):getCount()>0
       or
-      love.thread.getChannel('loadRequests'):getCount()>0 
+      love.thread.getChannel('loadRequests'):getCount()>0
     ) do end
   end
 
@@ -184,7 +210,7 @@ function love.load(args)
   camera = Camera(player.x,player.y)
   camera:setFollowStyle('NO_DEADZONE')
   if game.config.thread.enable then
-    gSaveThread = startSaveThread() 
+    gSaveThread = startSaveThread()
   end
 end
 
@@ -212,28 +238,28 @@ function love.update(dt)
     if isd'down' or isd's' then
       player.y=player.y+spd
     end
-    
+
     if game.config.debug.debugDrawDirt then
       if love.mouse.isDown(1) then
         for i,v in ipairs(world.chunks) do
           if v.x==playerChunk[1] and v.y==playerChunk[2] then
             local mx,my = love.mouse.getPosition()
-            local lx,ly = math.floor(mx/world.tileSize)+1,math.floor(my/world.tileSize)+1
+            local lx,ly = math.floor(mx/world.tileSize+v.x/3-1),math.floor(my/world.tileSize+v.y/3)
             if v.data[lx] and v.data[lx][ly] then
-              v.data[lx][ly].floor.id = 2
+              v.data[lx][ly].tile.id = 2
             end
             break
           end
         end
       end
     end
-    
+
     camera:follow(player.x+game.playerSize[1],player.y+game.playerSize[2])
     camera:update(dt)
-    
+
     local cs  = world.chunkSize * world.tileSize
     local ldist = math.floor(game.config.ldist)
-    
+
     local dif = {
       (playerChunk or {})[1],
       (playerChunk or {})[2]
@@ -242,7 +268,7 @@ function love.update(dt)
       math.floor((player.x+game.playerSize[1]/2)/cs)+1,
       math.floor((player.y+game.playerSize[2]/2)/cs)+1,
     }
-    
+
     if game.config.thread.enable and game.config.thread.multithreadLoad then
       local loaded = false
       while true do
@@ -266,7 +292,7 @@ function love.update(dt)
         end
       end
     end
-    
+
     if dif[1]~=playerChunk[1] or dif[2]~=playerChunk[2] then
       chunkLoader()
     end
@@ -275,19 +301,20 @@ end
 
 function love.draw()
   --locals
-  local world,player,game,obj = world,player,game,obj 
+  local world,player,game,obj = world,player,game,obj
   local g = love.graphics
   local draw = g.draw
   --
-  
+  love.graphics.setBackgroundColor(0.5, 0.5, 1)
+  g.clear()
   g.setColor(1,1,1)
   local w,h = g.getDimensions()
-  
+
   if game.config.debug.enableZoom and love.keyboard.isDown('z') then
     g.translate(w/3,h/3)
     g.scale(.25)
   end
-  
+
   if game.state[1]=='menu' then
     g.push()
       menu.draw()
@@ -307,7 +334,7 @@ function love.draw()
                 if v then
                   local e = obj[0]
                   do
-                    local fl = obj[v.floor.id]
+                    local fl = obj[v.tile.id]
                     local t
                     if fl then
                       t = fl.texture

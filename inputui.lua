@@ -13,7 +13,7 @@ inputui = {
         if self.shown then
           game.blockInput.m1 = true
         end
-      end
+      end,
       draw = function(self)
         if self.shown then
           game.blockInput.m1 = true
