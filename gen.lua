@@ -2,10 +2,10 @@ gen = {}
 
 local function setTile(c, x, y, t, ...)
     if not c[x] then
-      c[x] = {}
+        c[x] = {}
     end
     if not c[x][y] then
-      c[x][y] = {}
+        c[x][y] = {}
     end
     c[x][y] = {tile = {id = t, data = {...}}}
 end

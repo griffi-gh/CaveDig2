@@ -1,4 +1,8 @@
-physics = {}
+physics = {
+  obj = {
+    blocks = {}
+  }
+}
 
 function physics.newWorld()
   

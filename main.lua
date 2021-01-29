@@ -400,7 +400,7 @@ function love.draw()
       g.setColor(1,1,1)
       g.print(
         string.format(
-          '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %g_%g\nPlayer x:%g\ny:%g\nCompression %s',
+          '%s FPS\n%s chunks loaded\n%s/%s/%s in queue (save/load/recv) \nPlayer in chunk: %g_%g\nPlayer x:%g\ny:%g\nCompression %s\nSeed: %s',
           love.timer.getFPS(),
           #world.chunks,
           love.thread.getChannel('unload'):getCount(),
@@ -408,10 +408,12 @@ function love.draw()
           love.thread.getChannel('loadReturn'):getCount(),
           playerChunk[1],playerChunk[2],
           player.x,player.y,
-          (world.compression and 'Enabled') or 'Disabled'
+          (world.compression and 'Enabled') or 'Disabled',
+          world.seed or 0
         )
       )
     elseif game.config.fpsCounter then
+      g.setColor(1,1,1,.85)
       g.print(love.timer.getFPS()..' FPS')
     end
   end

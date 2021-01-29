@@ -4,7 +4,8 @@ function worldDefualt(n)
     chunks = {},
     chunkSize = 16,
     tileSize = 32,
-    compression = true
+    compression = true,
+    seed = love.math.random(0,999999)
   }
 end
 
@@ -15,3 +16,10 @@ function playerDefault(n)
     y = 0,
   }
 end 
+
+function tileDefault(id)
+  return {
+    id = 1,
+    data = {}
+  }
+end
