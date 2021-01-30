@@ -213,7 +213,6 @@ function love.keypressed(k)
 end
 
 function love.load(args)
-  love.window.setVSync(0)
   camera = Camera(player.x,player.y)
   camera:setFollowStyle('NO_DEADZONE')
   if game.config.thread.enable then

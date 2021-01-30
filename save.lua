@@ -1,4 +1,6 @@
-save = {}
+save = {
+  version = 1 
+}
 local fs = love.filesystem
 ------------------
 local function gname(w)
@@ -94,22 +96,27 @@ end
 ------------------
 function save.saveWorldData(w,p)
   local sd = {}
+  local ban = {
+    chunks = true,
+    name = true,
+  }
   for i,v in pairs(w) do
-    if i~='chunks' and i~='name' then
+    if not(ban[i]) then
       sd[i]=v
     end
   end
+  sd.saveVersion = save.version or -1
   local d = bitser.dumps(sd)
   local f = save.getDataFile(w)
   fs.write(f,d)
 end
 
 function save.loadWorldData(w)
-  local f  = save.getDataFile(w)
-  local r  = fs.read(f)
-  local d  = bitser.loads(r)
-  d.chunks = {} 
-  d.name   = gname(w)
+  local f   = save.getDataFile(w)
+  local r   = fs.read(f)
+  local d   = bitser.loads(r)
+  d.chunks  = {} 
+  d.name    = gname(w)
   return d
 end
 ------------------

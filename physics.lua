@@ -1,8 +1,9 @@
 physics = {}
 
-function physics.new(w)
+function physics.new(w,p)
   local obj = {}
   obj.cdworld = w
+  obj.cdplayer = p
   obj.world = wf.newWorld(0,0,true)
   obj.world:setGravity(0,512)
   obj.world:addCollisionClass(

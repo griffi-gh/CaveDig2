@@ -5,4 +5,4 @@ fonts = {
   [30] = love.graphics.newFont(30), 
   [60] = love.graphics.newFont(60), 
   [100] = love.graphics.newFont(100),
-}   
+}
